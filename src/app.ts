@@ -1,5 +1,6 @@
 import express from 'express';
 import { json, urlencoded } from 'body-parser';
+import fetch from 'node-fetch';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,7 +22,7 @@ let pricesCache: { [key: string]: any } = {};
 async function fetchRealPrices() {
     try {
         const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,ripple,cardano&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true');
-        const data = await response.json();
+        const data: any = await response.json();
         
         pricesCache = {
             BTC: {
@@ -67,8 +68,18 @@ async function fetchRealPrices() {
 
 // Обновляем цены каждые 30 секунд
 setInterval(fetchRealPrices, 30000);
-fetchRealPrices(); // Первый запрос при старте
+fetchRealPrices();
 
+// ...existing code... (все API routes остаются без изменений)
+
+// УДАЛИТЬ эти строки (WebSocket не нужен):
+// const WebSocket = require('ws');
+// const wss = new WebSocket.Server({ noServer: true });
+
+// УДАЛИТЬ этот маршрут:
+// app.get('/api/prices/stream', ...)
+
+// ...остальной код остается без изменений...
 // API Routes - Trades
 app.get('/api/trades', (_req, res) => {
     res.json(trades);
